@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lead-Acid to Lithium Battery Upgrade & Weight Savings Calculator</title>
+  <meta name="description" content="Calculate the exact LiFePO4 battery capacity (Ah) needed to replace Lead-Acid batteries, and estimate weight and space savings.">
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+  </style>
+</head>
+<body class="bg-[#f5f5f7] text-[#1d1d1f] min-h-screen flex flex-col justify-between selection:bg-[#0071e3] selection:text-white">
+
+  <!-- Main Container -->
+  <div class="max-w-5xl mx-auto w-full px-4 sm:px-6 py-10 my-auto">
+    
+    <!-- Header -->
+    <header class="text-center mb-10">
+      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white border border-black/5 shadow-sm mb-4 text-[#0071e3]">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight text-[#1d1d1f]">
+        Lead-Acid to LiFePO4 Upgrade Calculator
+      </h1>
+      <p class="text-base text-[#86868b] mt-2 max-w-xl mx-auto font-normal">
+        Estimate exact equivalent lithium capacity, total weight savings, and usable energy gains for marine, RV, and off-grid conversions.
+      </p>
+    </header>
+
+    <!-- Grid Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Input Controls (Left Column) -->
+      <section class="lg:col-span-5 bg-white border border-black/5 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+        <h2 class="text-lg font-semibold tracking-tight text-[#1d1d1f] border-b border-gray-100 pb-3 flex items-center justify-between">
+          <span>Current Battery Bank</span>
+          <span class="text-xs font-normal text-[#86868b] uppercase tracking-wider">Step 1</span>
+        </h2>
+
+        <!-- System Voltage -->
+        <div>
+          <label class="block text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-2">
+            System Nominal Voltage (V)
+          </label>
+          <select 
+            id="systemVoltage" 
+            class="w-full bg-[#f5f5f7] border border-transparent focus:border-[#0071e3] focus:bg-white text-[#1d1d1f] text-sm rounded-xl px-4 py-3 outline-none transition-all duration-200 cursor-pointer"
+            onchange="calculate()"
+          >
+            <option value="12" selected>12 V (Standard Marine/RV)</option>
+            <option value="24">24 V (Medium Marine/Trolling)</option>
+            <option value="36">36 V (Trolling Motors)</option>
+            <option value="48">48 V (Golf Carts/Off-Grid)</option>
+          </select>
+        </div>
+
+        <!-- Battery Chemistry -->
+        <div>
+          <label class="block text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-2">
+            Existing Lead-Acid Type
+          </label>
+          <select 
+            id="chemistry" 
+            class="w-full bg-[#f5f5f7] border border-transparent focus:border-[#0071e3] focus:bg-white text-[#1d1d1f] text-sm rounded-xl px-4 py-3 outline-none transition-all duration-200 cursor-pointer"
+            onchange="calculate()"
+          >
+            <option value="AGM" selected>AGM (Sealed Lead-Acid)</option>
+            <option value="Gel">Gel Cell</option>
+            <option value="Flooded">Flooded / Wet Cell</option>
+          </select>
+        </div>
+
+        <!-- Capacity per Battery -->
+        <div>
+          <label class="block text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-2">
+            Capacity per Battery (Ah)
+          </label>
+          <div class="relative">
+            <input 
+              type="number" 
+              id="leadCapacity" 
+              value="200" 
+              min="1" 
+              placeholder="200" 
+              class="w-full bg-[#f5f5f7] border border-transparent focus:border-[#0071e3] focus:bg-white text-[#1d1d1f] text-sm rounded-xl px-4 py-3 outline-none transition-all duration-200"
+              oninput="calculate()"
+            >
+            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-[#86868b]">Ah</span>
+          </div>
+        </div>
+
+        <!-- Quantity of Batteries -->
+        <div>
+          <label class="block text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-2">
+            Number of Batteries in Bank
+          </label>
+          <div class="relative">
+            <input 
+              type="number" 
+              id="batteryCount" 
+              value="2" 
+              min="1" 
+              placeholder="2" 
+              class="w-full bg-[#f5f5f7] border border-transparent focus:border-[#0071e3] focus:bg-white text-[#1d1d1f] text-sm rounded-xl px-4 py-3 outline-none transition-all duration-200"
+              oninput="calculate()"
+            >
+            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-[#86868b]">Units</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Output & Engineering Cards (Right Column) -->
+      <div class="lg:col-span-7 space-y-6">
+        
+        <!-- Conversion Summary Card -->
+        <section class="bg-white border border-black/5 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+          <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+            <h2 class="text-lg font-semibold tracking-tight text-[#1d1d1f]">Upgrade Comparison</h2>
+            <span id="bankSummaryTag" class="text-xs font-semibold px-3 py-1 bg-[#0071e3]/10 text-[#0071e3] rounded-full">
+              400 Ah Lead-Acid Total
+            </span>
+          </div>
+
+          <!-- Highlight Output Card: Recommended LiFePO4 -->
+          <div class="p-5 rounded-2xl bg-gradient-to-br from-[#0071e3]/5 to-[#0071e3]/10 border border-[#0071e3]/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <span class="text-xs font-semibold text-[#0071e3] uppercase tracking-wider block mb-1">
+                Recommended Equivalent Lithium Capacity
+              </span>
+              <p class="text-xs text-[#86868b]">
+                Provides equivalent or greater usable runtime with 85% DoD safety margin.
+              </p>
+            </div>
+            <div class="text-left sm:text-right">
+              <div id="recommendedLithium" class="text-2xl sm:text-3xl font-bold text-[#0071e3]">
+                235 Ah
+              </div>
+              <span id="usableEqText" class="text-[11px] font-medium text-[#86868b]">
+                @ 12V Nominal System
+              </span>
+            </div>
+          </div>
+
+          <!-- Key Metrics Cards Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            
+            <!-- Weight Saved -->
+            <div class="bg-[#f5f5f7] p-4 rounded-2xl">
+              <span class="text-xs font-medium text-[#86868b] uppercase tracking-wider block mb-1">Weight Saved</span>
+              <div class="text-xl sm:text-2xl font-semibold tracking-tight text-[#1d1d1f]">
+                <span id="weightSavedLbs">160</span><span class="text-sm font-normal text-[#86868b] ml-1">lbs</span>
+              </div>
+              <div id="weightSavedPct" class="text-xs text-emerald-600 font-medium mt-1">
+                Saved ~67% Weight
+              </div>
+            </div>
+
+            <!-- Volume / Space Saved -->
+            <div class="bg-[#f5f5f7] p-4 rounded-2xl">
+              <span class="text-xs font-medium text-[#86868b] uppercase tracking-wider block mb-1">Space Savings</span>
+              <div class="text-xl sm:text-2xl font-semibold tracking-tight text-[#1d1d1f]">
+                <span id="spaceSavingsPct">~35%</span>
+              </div>
+              <div class="text-xs text-[#86868b] font-medium mt-1">
+                Smaller Footprint
+              </div>
+            </div>
+
+            <!-- Total Weight Comparison (Kilograms) -->
+            <div class="bg-[#f5f5f7] p-4 rounded-2xl col-span-2 sm:col-span-1">
+              <span class="text-xs font-medium text-[#86868b] uppercase tracking-wider block mb-1">Weight in Metric</span>
+              <div class="text-xl sm:text-2xl font-semibold tracking-tight text-[#1d1d1f]">
+                <span id="weightSavedKg">72.6</span><span class="text-sm font-normal text-[#86868b] ml-1">kg</span>
+              </div>
+              <div class="text-xs text-[#86868b] font-medium mt-1">
+                Total Mass Reduction
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Energy Breakdown Bar Comparison -->
+          <div class="pt-2 border-t border-gray-100">
+            <h3 class="text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-3">
+              Usable Energy Comparison (50% DoD vs 85% DoD)
+            </h3>
+            
+            <div class="space-y-3 text-xs">
+              <!-- Lead Acid Bar -->
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="font-medium text-[#1d1d1f]">Lead-Acid Bank Usable:</span>
+                  <span id="leadUsableWh" class="font-semibold text-[#1d1d1f]">2,400 Wh</span>
+                </div>
+                <div class="w-full bg-[#f5f5f7] h-3 rounded-full overflow-hidden">
+                  <div id="leadBar" class="bg-gray-400 h-full rounded-full transition-all duration-300" style="width: 50%;"></div>
+                </div>
+              </div>
+
+              <!-- Lithium Bar -->
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span class="font-medium text-[#0071e3]">LiFePO4 Upgrade Usable:</span>
+                  <span id="lithiumUsableWh" class="font-semibold text-[#0071e3]">2,400 Wh</span>
+                </div>
+                <div class="w-full bg-[#f5f5f7] h-3 rounded-full overflow-hidden">
+                  <div id="lithiumBar" class="bg-[#0071e3] h-full rounded-full transition-all duration-300" style="width: 85%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Dynamic Engineering & Charger Tips Card -->
+        <section class="bg-white border border-black/5 rounded-3xl p-6 sm:p-8 shadow-sm">
+          <h2 class="text-lg font-semibold tracking-tight text-[#1d1d1f] border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Engineering &amp; Charger Conversion Tips
+          </h2>
+
+          <div class="space-y-3 text-xs leading-relaxed">
+            <!-- Charger Compatibility Notice -->
+            <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200/60 text-amber-900 flex items-start gap-3">
+              <span class="text-amber-600 font-bold text-base leading-none mt-0.5">⚠️</span>
+              <div>
+                <strong class="font-semibold">Charger Compatibility Alert:</strong> 
+                <span>Do not use traditional Lead-Acid chargers with automatic desulfation or equalization modes on LiFePO4 batteries. Ensure your marine/RV charger supports a dedicated Lithium profile (<span id="absorpVoltage">14.2V - 14.6V</span> absorption).</span>
+              </div>
+            </div>
+
+            <!-- BMS Feature Reminder -->
+            <div class="p-3.5 rounded-xl bg-[#f5f5f7] border border-black/5 flex items-start gap-3">
+              <span class="text-blue-500 font-bold text-base leading-none mt-0.5">💡</span>
+              <div>
+                <strong class="font-semibold text-[#1d1d1f]">BMS Low-Temp Protection:</strong> 
+                <span>Charging lithium below 32°F (0°C) can cause irreversible lithium plating. Choose LiFePO4 cells with integrated Low-Temperature Cut-Off protection if operating in freezing marine or winter environments.</span>
+              </div>
+            </div>
+
+            <!-- Voltage Sag Benefit -->
+            <div class="p-3.5 rounded-xl bg-[#f5f5f7] border border-black/5 flex items-start gap-3">
+              <span class="text-emerald-500 font-bold text-base leading-none mt-0.5">⚡</span>
+              <div>
+                <strong class="font-semibold text-[#1d1d1f]">Zero Voltage Sag Performance:</strong> 
+                <span>Unlike Lead-Acid (which drops rapidly under heavy load), Lithium maintains flat voltage output under draw, keeping marine winches, thrusters, and AC inverters running at peak efficiency.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Footer Disclaimer -->
+  <footer class="text-center py-8 px-4 border-t border-black/5 mt-10">
+    <p class="text-xs text-[#86868b] max-w-2xl mx-auto leading-relaxed">
+      <strong>Disclaimer:</strong> Estimates are based on average energy density and DoD profiles (Lead-Acid ~50% DoD, LiFePO4 ~85% DoD). Always verify weight and dimension specs with your battery manufacturer.
+    </p>
+  </footer>
+
+  <!-- Interactive JavaScript Logic -->
+  <script>
+    function calculate() {
+      const systemVoltage = parseFloat(document.getElementById('systemVoltage').value) || 12;
+      const chemistry = document.getElementById('chemistry').value;
+      const leadCapacityPerBat = parseFloat(document.getElementById('leadCapacity').value) || 0;
+      const batteryCount = parseInt(document.getElementById('batteryCount').value) || 0;
+
+      // Elements
+      const bankSummaryTag = document.getElementById('bankSummaryTag');
+      const recommendedLithium = document.getElementById('recommendedLithium');
+      const usableEqText = document.getElementById('usableEqText');
+      const weightSavedLbs = document.getElementById('weightSavedLbs');
+      const weightSavedPct = document.getElementById('weightSavedPct');
+      const weightSavedKg = document.getElementById('weightSavedKg');
+      const spaceSavingsPct = document.getElementById('spaceSavingsPct');
+      const leadUsableWhElem = document.getElementById('leadUsableWh');
+      const lithiumUsableWhElem = document.getElementById('lithiumUsableWh');
+      const leadBar = document.getElementById('leadBar');
+      const lithiumBar = document.getElementById('lithiumBar');
+      const absorpVoltage = document.getElementById('absorpVoltage');
+
+      // Validation
+      if (leadCapacityPerBat <= 0 || batteryCount <= 0) {
+        bankSummaryTag.textContent = "Invalid Input";
+        recommendedLithium.textContent = "0 Ah";
+        weightSavedLbs.textContent = "0";
+        weightSavedKg.textContent = "0";
+        weightSavedPct.textContent = "Saved 0%";
+        leadUsableWhElem.textContent = "0 Wh";
+        lithiumUsableWhElem.textContent = "0 Wh";
+        return;
+      }
+
+      // Calculations
+      const totalLeadAh = leadCapacityPerBat * batteryCount;
+      const leadTotalWh = totalLeadAh * systemVoltage;
+      
+      // DoD Assumptions
+      const leadDoD = 0.50;
+      const lithiumDoD = 0.85;
+
+      const leadUsableWh = leadTotalWh * leadDoD;
+      
+      // Required LiFePO4 Ah to match Usable Energy
+      const requiredLithiumWh = leadUsableWh / lithiumDoD;
+      const recommendedLithiumAh = Math.ceil(requiredLithiumWh / systemVoltage);
+      const lithiumUsableWh = recommendedLithiumAh * systemVoltage * lithiumDoD;
+
+      // Weight Density Calculations (Approximate averages)
+      // Lead-Acid avg: ~0.15 lbs per Ah at 12V equivalent per battery
+      // AGM: ~0.30 kg/Ah at 12V, Flooded: ~0.27 kg/Ah at 12V
+      let weightPerAhLbs = 0.30; // Default AGM 12V approx weight factor per Ah
+      if (chemistry === 'Flooded') weightPerAhLbs = 0.27;
+      if (chemistry === 'Gel') weightPerAhLbs = 0.31;
+
+      // Calculate total mass based on 12V equivalent total Ah
+      const totalAhAt12V = totalLeadAh * (systemVoltage / 12);
+      const totalLeadWeightLbs = totalAhAt12V * weightPerAhLbs;
+
+      // LiFePO4 avg weight factor: ~0.10 lbs per Ah at 12V equivalent
+      const lithiumAhAt12V = recommendedLithiumAh * (systemVoltage / 12);
+      const totalLithiumWeightLbs = lithiumAhAt12V * 0.10;
+
+      const lbsSaved = Math.max(0, totalLeadWeightLbs - totalLithiumWeightLbs);
+      const kgSaved = lbsSaved * 0.45359237;
+      const pctSaved = totalLeadWeightLbs > 0 ? (lbsSaved / totalLeadWeightLbs) * 100 : 0;
+
+      // Space savings (typically 30% - 40% based on density)
+      const spaceSaved = chemistry === 'Flooded' ? 30 : 35;
+
+      // UI Updates
+      bankSummaryTag.textContent = `${totalLeadAh} Ah Lead-Acid Total (${batteryCount}x ${leadCapacityPerBat}Ah)`;
+      recommendedLithium.textContent = `${recommendedLithiumAh} Ah`;
+      usableEqText.textContent = `@ ${systemVoltage}V Nominal System`;
+
+      weightSavedLbs.textContent = Math.round(lbsSaved).toLocaleString();
+      weightSavedKg.textContent = kgSaved.toFixed(1);
+      weightSavedPct.textContent = `Saved ~${Math.round(pctSaved)}% Weight`;
+      spaceSavingsPct.textContent = `~${spaceSaved}%`;
+
+      leadUsableWhElem.textContent = `${Math.round(leadUsableWh).toLocaleString()} Wh`;
+      lithiumUsableWhElem.textContent = `${Math.round(lithiumUsableWh).toLocaleString()} Wh`;
+
+      // Dynamic Bar Visualization
+      const maxWh = Math.max(leadTotalWh, lithiumUsableWh / lithiumDoD);
+      const leadBarWidth = Math.min(100, Math.round((leadUsableWh / maxWh) * 100));
+      const lithiumBarWidth = Math.min(100, Math.round((lithiumUsableWh / maxWh) * 100));
+
+      leadBar.style.width = `${leadBarWidth}%`;
+      lithiumBar.style.width = `${lithiumBarWidth}%`;
+
+      // Update Absorption Voltage suggestion based on System Voltage
+      if (systemVoltage === 12) absorpVoltage.textContent = "14.2V - 14.6V";
+      else if (systemVoltage === 24) absorpVoltage.textContent = "28.4V - 29.2V";
+      else if (systemVoltage === 36) absorpVoltage.textContent = "42.6V - 43.8V";
+      else if (systemVoltage === 48) absorpVoltage.textContent = "56.8V - 58.4V";
+    }
+
+    // Initial Calculation
+    document.addEventListener('DOMContentLoaded', calculate);
+  </script>
+
+</body>
+</html>
